@@ -5,7 +5,7 @@ from .serializers import MenuItemSerializer
 from .models import MenuItem
 from rest_framework.response import Response
 from rest_framework import status
-
+from django.core.paginator import Paginator
 
 class MenuItemViewSet(viewsets.ViewSet):
     """
@@ -18,7 +18,10 @@ class MenuItemViewSet(viewsets.ViewSet):
         """
             Get all objects from menu item
         """
-        srz_data = MenuItemSerializer(instance=self.queryset, many=True).data
+        page_number=request.query_params.get('page', 1)
+        page_size=request.query_params.get('limit', 5)
+        paginator = Paginator(self.queryset, page_size)
+        srz_data = MenuItemSerializer(instance=paginator.page(page_number), many=True).data
         return Response(data=srz_data, status=status.HTTP_200_OK)
 
     def create(self, request):
@@ -55,3 +58,5 @@ class MenuItemViewSet(viewsets.ViewSet):
         return Response({
             "Message": "Successfully menu item been deleted",
         })
+
+
