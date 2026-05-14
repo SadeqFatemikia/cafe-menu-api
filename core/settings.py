@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 # .env
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     # External Package
     'rest_framework',
     'django_filters',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -129,4 +131,34 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # REST FRAMEWORK
-REST_FRAMEWORK = {}
+REST_FRAMEWORK = {
+
+    'DEFAULT_AUTHENTICATION_CLASSES':
+        ['rest_framework_simplejwt.authentication.JWTAuthentication'],
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+
+    'DEFAULT_THROTTLE_CLASSES':
+        [
+            'rest_framework.throttling.AnonRateThrottle',  # for Unknown User
+            'rest_framework.throttling.UserRateThrottle'  # for Authenticate User
+        ],
+    'DEFAULT_THROTTLE_RATES':
+        {
+            'anon': '5/minute',
+            'user': '10/minute',
+
+        },
+}
+
+SIMPLE_JWT = {
+    # Development settings - long tokens for easier testing
+    # Production: ACCESS_TOKEN_LIFETIME = 15 minutes, REFRESH_TOKEN_LIFETIME = 7 days
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=180),
+}
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Cafe Menu API',
+    'DESCRIPTION': 'Cafe menu API for managing menu items and categories',
+    'VERSION': '1.0.0',
+}
